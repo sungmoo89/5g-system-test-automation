@@ -1,0 +1,4 @@
+network:
+  name: test_5g_lab
+  ue_count: 5
+  retry: 2

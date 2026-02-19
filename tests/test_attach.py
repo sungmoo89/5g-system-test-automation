@@ -14,12 +14,16 @@ def test_5g_attach():
     base.setup()
 
     api = APIClient()
-    response = api.trigger_attach()
+    payload = {
+        "ue_id": "test_ue_01",
+        "network": config["network"]["name"]
+    }
+    response = api.trigger_attach(payload)
 
     parser = LogParser()
     result = parser.parse("Attach Success")
 
-    assert response["status"] == "success"
+    assert response["status"] == "attached"
     assert result is True
 
     base.teardown()

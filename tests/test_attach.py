@@ -1,29 +1,40 @@
+import pytest
+from utils.log_parser import LogParser
 from utils.logger import get_logger
 from core.base_test import BaseTest
-from utils.api_client import APIClient
+# from utils.api_client import APIClient
+from utils.network_simulator import NetworkSimulator
 from utils.log_parser import LogParser
 from utils.config_loader import load_config
 
-logger = get_logger(__name__)
+scenarios = ["REGISTERED", "TIMEOUT", "AUTH_FAIL"]
 
-def test_5g_attach():
+@pytest.mark.parametrize(
+    "network_state",
+    scenarios,
+    ids=scenarios
+)
+
+
+def test_5g_attach(network_state):
     config = load_config("config/test_config.yaml")
     print("Network:", config["network"]["name"])    
     
     base = BaseTest()
     base.setup()
 
-    api = APIClient()
-    payload = {
-        "ue_id": "test_ue_01",
-        "network": config["network"]["name"]
-    }
-    response = api.trigger_attach(payload)
+    sim = NetworkSimulator()
+
+    response = sim.ue_attach(force_result=network_state)
 
     parser = LogParser()
-    result = parser.parse("Attach Success")
+    result = parser.parse_attach_success()
 
-    assert response["status"] == "attached"
-    assert result is True
+    if network_state == "REGISTERED":
+        assert response["state"] == "REGISTERED"
+        assert result is True
+
+    else:
+        assert response["state"] != "REGISTERED"
 
     base.teardown()

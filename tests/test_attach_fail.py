@@ -7,4 +7,4 @@ def test_5g_attach_fail():
 
     result = parser.parse(fake_log)
 
-    assert result is False
+    assert result == "AUTH_FAIL"
